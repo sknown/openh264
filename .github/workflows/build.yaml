@@ -19,58 +19,14 @@ jobs:
         env:
           CFLAGS: -WX
         run: ./AutoBuildForWindows.bat Win64-Release-C
-      - run: ./bin/Win32/Release/codec_unittest.exe
+      - run: ./bin/x64/Release/codec_unittest.exe
       - uses: actions/upload-artifact@v1
         with:
           name: artifacts
-          path: bin/Win32/Release
-
-  mingw:
-    runs-on: windows-2019
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - uses: msys2/setup-msys2@v2
+          path: bin/x64/Release
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          msystem: mingw64
-          install: >-
-            git
-            make
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-nasm
-            mingw-w64-x86_64-meson
-      - uses: actions/checkout@v3
-      - run: c++ --version
-      - run: make gmp-bootstrap
-      - run: make gtest-bootstrap
-      # disable Werror on gcc 12 until #3533 is fixed.
-      #- run: CFLAGS=-Werror make -j$(nproc) all plugin test
-      - run: make -j$(nproc) all plugin test
-      #- run: meson builddir --werror
-      - run: meson builddir
-      - run: ninja -C builddir -v
-      - run: meson test -C builddir -v
-
-
-  fuzzing:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Build Fuzzers
-      id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
-      with:
-        oss-fuzz-project-name: 'openh264'
-        language: c++
-    - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
-      with:
-        oss-fuzz-project-name: 'openh264'
-        language: c++
-        fuzz-seconds: 600
-    - name: Upload Crash
-      uses: actions/upload-artifact@v1
-      if: failure() && steps.build.outcome == 'success'
-      with:
-        name: artifacts
-        path: ./out/artifacts
+          files: "bin/x64/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
