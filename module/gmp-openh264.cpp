@@ -887,7 +887,7 @@ class OpenH264VideoDecoder : public GMPVideoDecoder, public RefCounted {
       memset (&decoded, 0, sizeof (decoded));
       unsigned char* data[3] = {nullptr, nullptr, nullptr};
       DECODING_STATE dState = decoder_->DecodeFrame2 (&*annexb.begin(),
-                                                      annexb.size(),
+                                                      (int)annexb.size(),
                                                       data,
                                                       &decoded);
       if (dState) {
