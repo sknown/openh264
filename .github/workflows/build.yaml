@@ -20,10 +20,10 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: artifacts
-          path: bin
+          path: libopenh264.a
       - uses: softprops/action-gh-release@v1
         with:
-          files: "bin/**"
+          files: "*.a"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
   windows:
