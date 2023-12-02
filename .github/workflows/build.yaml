@@ -17,14 +17,13 @@ jobs:
       - run: CFLAGS=-Werror make -j$(nproc) ARCH=armv7 CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++
       - run: CFLAGS=-Werror make clean
       - run: CFLAGS=-Werror make -j$(nproc) ARCH=aarch64 CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
-      - run: qemu-aarch64 -L /usr/aarch64-linux-gnu/ ./codec_unittest
       - uses: actions/upload-artifact@v1
         with:
           name: artifacts
-          path: ./
+          path: bin
       - uses: softprops/action-gh-release@v1
         with:
-          files: "./**"
+          files: "bin/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
   windows:
