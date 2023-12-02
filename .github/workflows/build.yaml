@@ -5,6 +5,28 @@ on:
   pull_request:
 
 jobs:
+  linux-cross-arm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt-get update -qq
+      - run: sudo apt-get install -qq g++-arm-linux-gnueabihf g++-aarch64-linux-gnu qemu-user
+      - run: arm-linux-gnueabihf-g++ --version
+      - run: make gmp-bootstrap
+      - run: make gtest-bootstrap
+      - run: CFLAGS=-Werror make -j$(nproc) ARCH=armv7 CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++
+      - run: CFLAGS=-Werror make clean
+      - run: CFLAGS=-Werror make -j$(nproc) ARCH=aarch64 CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
+      - run: qemu-aarch64 -L /usr/aarch64-linux-gnu/ ./codec_unittest
+      - uses: actions/upload-artifact@v1
+        with:
+          name: artifacts
+          path: ./
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: "./**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
   windows:
     runs-on: windows-2019
     steps:
